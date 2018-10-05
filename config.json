@@ -1,0 +1,28 @@
+{
+    "LEDGERS_BACKUP": "./ledger_backup",
+    "PEER": {
+        "NAME" : [
+            "backuprestorefabric_peer0_org1_orange_com_1", "backuprestorefabric_peer1_org1_orange_com_1" 
+        ],
+        "TOOLS" : [
+            "chaincodes", "ledgersData", "peer.pid", "transientStore"
+        ],
+        "BACKUP": [
+            ["backuprestorefabric_peer0_org1_orange_com_1", "peer0_org1"],
+            ["backuprestorefabric_peer1_org1_orange_com_1", "peer1_org1"]
+        ],
+        "RESTORE": [
+            ["peer0_org1", "backuprestorefabric_peer0_org1_orange_com_1"],
+            ["peer1_org1", "backuprestorefabric_peer1_org1_orange_com_1"]
+        ]
+    },
+    "ORDERER": {
+        "TOOLS" : [
+            "chains", "index"
+        ],
+        "NAME": "backuprestorefabric_orderer_orange_com_1",
+        "BACKUP" : ["backuprestorefabric_orderer_orange_com_1", "orderer"],
+        "RESTORE" : ["orderer", "backuprestorefabric_orderer_orange_com_1"]
+    }
+    
+}

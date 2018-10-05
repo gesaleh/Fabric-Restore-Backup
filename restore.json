@@ -1,0 +1,13 @@
+{
+    "ORDERER_NAME": "migrate_orderer_orange_com_1",
+    "LEDGERS_BACKUP": "./ledger_backup",
+    "PEER_NAME" : [
+        "migrate_peer0_org1_orange_com_1", "migrate_peer1_org1_orange_com_1" 
+    ],
+    "PEERS_BACKUP" : [
+        "chaincodes", "ledgersData", "peer.pid", "transientStore"
+    ],
+    "ORDERER_BACKUP" : [
+        "chains", "index"
+    ]
+}

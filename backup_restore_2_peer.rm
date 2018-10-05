@@ -1,0 +1,71 @@
+Pre Steps => {
+
+    docker rm $(docker ps -aq) -f
+    docker network prune -f
+    docker volume prune -f
+
+    nohup docker-compose -f ./docker_sample.yml up &
+}
+Backup => {
+    1) export LEDGERS_BACKUP=./ledger_backup
+    2) mkdir $LEDGERS_BACKUP
+    3) Backup Peer from [/var/hyperledger/production] folder
+        contain: [ledgersData, chaincodes, stateLeveldb, historyLeveldb, chains/index]
+
+        Backup Command:
+            docker cp migrate_peer0_org1_orange_com_1:/var/hyperledger/production ./$LEDGERS_BACKUP/peer0_org1_orange_com
+            docker cp migrate_peer1_org1_orange_com_1:/var/hyperledger/production ./$LEDGERS_BACKUP/peer1_org1_orange_com
+            docker cp migrate_orderer_orange_com_1:/var/hyperledger/production/orderer/ ./$LEDGERS_BACKUP/orderer_orange_com
+}
+
+Restore => {
+    1) docker stop migrate_peer0_org1_orange_com_1 migrate_orderer_orange_com_1 migrate_peer1_org1_orange_com_1
+
+    2) Restore Command:
+        docker cp ./$LEDGERS_BACKUP/peer0_org1_orange_com/chaincodes migrate_peer0_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer0_org1_orange_com/ledgersData migrate_peer0_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer0_org1_orange_com/peer.pid migrate_peer0_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer0_org1_orange_com/transientStore migrate_peer0_org1_orange_com_1:/var/hyperledger/production
+
+        docker cp ./$LEDGERS_BACKUP/peer1_org1_orange_com/chaincodes migrate_peer1_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer1_org1_orange_com/ledgersData migrate_peer1_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer1_org1_orange_com/peer.pid migrate_peer1_org1_orange_com_1:/var/hyperledger/production
+        docker cp ./$LEDGERS_BACKUP/peer1_org1_orange_com/transientStore migrate_peer1_org1_orange_com_1:/var/hyperledger/production
+
+
+        docker cp ./$LEDGERS_BACKUP/orderer_orange_com/chains migrate_orderer_orange_com_1:/var/hyperledger/production/orderer/
+        docker cp ./$LEDGERS_BACKUP/orderer_orange_com/index migrate_orderer_orange_com_1:/var/hyperledger/production/orderer/
+
+    3) docker restart migrate_peer0_org1_orange_com_1 migrate_orderer_orange_com_1 migrate_peer1_org1_orange_com_1
+}
+
+Scenairo Happen:
+1) [Swarm Mode]
+    Happy:
+        - work in swarm mode
+        - playground work
+        - i found existing asset and transaction
+        - new chain image setup
+    Unknow Happen:
+        - new peer started
+        - new orderer started
+
+2) [Docker Compose] [Docker Compose] backup [/var/hyperledger] in orderer
+    Error in playground:
+        Error: Error trying to ping. Error: 2 UNKNOWN: error executing chaincode: premature execution - chaincode (BUSINESS_NETWORK:0.18.1) is being launched
+        => Time out in condition [i don't know the condition]
+
+    Happy:
+        - create the chain code image
+        - playground work and Asset is found
+    Sad:
+        - peer logs : 2018-10-05 18:10:13.445 UTC [blocksProvider] DeliverBlocks -> WARN 14a8 [mychannel] Got error &{NOT_FOUND}
+        - orderer logs: 2018-10-05 18:10:33.528 UTC [common/deliver] deliverBlocks -> ERRO 698 [channel: mychannel] Error reading from channel, cause was: NOT_FOUND
+        - Can't Deploy new chain code image
+        - can't make new transaction
+
+4) [Docker migrate] [Docker Compose] backup [:/var/hyperledger/production/orderer/] in orderer
+    Happy:
+        - all work
+    Sad:
+        - Nothing
